@@ -1,96 +1,96 @@
 import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
 import {
-  ShoppingBag, Plus, Minus, Trash2, Phone, MapPin, Clock,
-  Star, ShieldCheck, X, CheckCircle2, ChefHat, Sparkles,
-  Lock, LogOut, Edit3, Search, ArrowRight, Flame
+  getFirestore, collection, onSnapshot, doc,
+  setDoc, deleteDoc, updateDoc, writeBatch
+} from 'firebase/firestore';
+import {
+  ShoppingBag, Plus, Minus, Trash2, Phone, MapPin,
+  X, CheckCircle2, Sparkles, Lock, LogOut, Search, ArrowRight, Flame
 } from 'lucide-react';
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDKlNRt4m4irDVOp_DiA7ANCnb_XOgakv4",
+  authDomain: "royal-ruchi-restaurant.firebaseapp.com",
+  projectId: "royal-ruchi-restaurant",
+  storageBucket: "royal-ruchi-restaurant.firebasestorage.app",
+  messagingSenderId: "717236348954",
+  appId: "1:717236348954:web:1e5d99450ad950505289a3",
+  measurementId: "G-BD2HF757FH"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const INITIAL_MENU = [
-  // 1. Royal Biryanis
-  { id: 1, name: "Royal Hyderabadi Chicken Dum Biryani", category: "Royal Biryanis", price: 260, veg: false, bestseller: true, desc: "Authentic slow-cooked basmati rice layered with spiced tender chicken & saffron.", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80" },
-  { id: 2, name: "Nizam Mutton Zafrani Biryani", category: "Royal Biryanis", price: 340, veg: false, bestseller: true, desc: "Succulent mutton pieces marinated overnight in royal spices and dum-cooked.", img: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=600&q=80" },
-  { id: 3, name: "Paneer Tikka Royal Biryani", category: "Royal Biryanis", price: 230, veg: true, bestseller: false, desc: "Char-grilled cottage cheese cubes tossed in aromatic dum rice.", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=600&q=80" },
-  // 2. Tandoori & Kebabs
-  { id: 4, name: "Murgh Malai Kebab (8 Pcs)", category: "Tandoori & Kebabs", price: 280, veg: false, bestseller: true, desc: "Creamy, melt-in-mouth chicken kebabs infused with cardamom and cheese.", img: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80" },
-  { id: 5, name: "Tandoori Chicken (Full)", category: "Tandoori & Kebabs", price: 460, veg: false, bestseller: true, desc: "Classic clay-oven roasted chicken marinated in hung curd and Kashmiri chilli.", img: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80" },
-  // 3. Telangana Specials
-  { id: 6, name: "Telangana Kodi Vepudu", category: "Telangana Specials", price: 270, veg: false, bestseller: true, desc: "Fiery, aromatic country-style chicken fry with freshly ground Telangana masala.", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80" },
-  { id: 7, name: "Natukodi Pulusu", category: "Telangana Specials", price: 320, veg: false, bestseller: false, desc: "Traditional rustic country chicken curry simmered to perfection.", img: "https://images.unsplash.com/photo-1545247181-516773cae754?auto=format&fit=crop&w=600&q=80" },
-  // 4. Royal Curries
-  { id: 8, name: "Butter Chicken Masala", category: "Royal Curries", price: 275, veg: false, bestseller: true, desc: "Tandoori chicken tikka simmered in rich velvety tomato-butter gravy.", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80" },
-  { id: 9, name: "Paneer Butter Masala", category: "Royal Curries", price: 240, veg: true, bestseller: true, desc: "Soft paneer cubes in a rich, creamy cashew and tomato gravy.", img: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" },
-  // 5. Starters & Appetizers
-  { id: 10, name: "Chicken 65 (Royal Style)", category: "Starters & Appetizers", price: 240, veg: false, bestseller: true, desc: "Crispy spicy chicken bites tossed with curry leaves and green chillies.", img: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80" },
-  { id: 11, name: "Crispy Chilli Baby Corn", category: "Starters & Appetizers", price: 195, veg: true, bestseller: false, desc: "Golden fried baby corn tossed in tangy Indo-Chinese garlic sauce.", img: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=600&q=80" },
-  // 6. Indian Breads
-  { id: 12, name: "Butter Garlic Naan", category: "Indian Breads", price: 65, veg: true, bestseller: true, desc: "Soft leavened flatbread topped with roasted garlic and melted butter.", img: "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=600&q=80" },
-  { id: 13, name: "Tandoori Roti", category: "Indian Breads", price: 35, veg: true, bestseller: false, desc: "Whole wheat bread baked crisp in a traditional clay tandoor.", img: "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=600&q=80" },
-  // 7. Chinese & Fried Rice
-  { id: 14, name: "Schezwan Chicken Fried Rice", category: "Chinese & Fried Rice", price: 210, veg: false, bestseller: false, desc: "Wok-tossed basmati rice with diced chicken, veggies & fiery Schezwan sauce.", img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80" },
-  // 8. Family Combos
-  { id: 15, name: "Royal Family Biryani Pack (Serves 4)", category: "Family Combos", price: 899, veg: false, bestseller: true, desc: "Jumbo Chicken Dum Biryani + Chicken 65 + 4 Drinks + Double Ka Meetha.", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80" },
-  // 9. Royal Desserts
-  { id: 16, name: "Shahi Double Ka Meetha", category: "Royal Desserts", price: 110, veg: true, bestseller: true, desc: "Hyderabadi royal bread pudding soaked in saffron milk, ghee & dry fruits.", img: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80" },
-  // 10. Beverages & Mocktails
-  { id: 17, name: "Royal Mango Lassi", category: "Beverages & Mocktails", price: 95, veg: true, bestseller: true, desc: "Thick, creamy churned yogurt blended with Alphonso mango pulp & pistachios.", img: "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80" }
+  { id: "1", name: "Royal Hyderabadi Chicken Dum Biryani", category: "Royal Biryanis", price: 260, veg: false, bestseller: true, desc: "Authentic slow-cooked basmati rice layered with spiced tender chicken & saffron.", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80" },
+  { id: "2", name: "Nizam Mutton Zafrani Biryani", category: "Royal Biryanis", price: 340, veg: false, bestseller: true, desc: "Succulent mutton pieces marinated overnight in royal spices and dum-cooked.", img: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=600&q=80" },
+  { id: "3", name: "Paneer Tikka Royal Biryani", category: "Royal Biryanis", price: 230, veg: true, bestseller: false, desc: "Char-grilled cottage cheese cubes tossed in aromatic dum rice.", img: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=600&q=80" },
+  { id: "4", name: "Murgh Malai Kebab (8 Pcs)", category: "Tandoori & Kebabs", price: 280, veg: false, bestseller: true, desc: "Creamy, melt-in-mouth chicken kebabs infused with cardamom and cheese.", img: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80" },
+  { id: "5", name: "Tandoori Chicken (Full)", category: "Tandoori & Kebabs", price: 460, veg: false, bestseller: true, desc: "Classic clay-oven roasted chicken marinated in hung curd and Kashmiri chilli.", img: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80" },
+  { id: "6", name: "Telangana Kodi Vepudu", category: "Telangana Specials", price: 270, veg: false, bestseller: true, desc: "Fiery, aromatic country-style chicken fry with freshly ground Telangana masala.", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80" },
+  { id: "7", name: "Natukodi Pulusu", category: "Telangana Specials", price: 320, veg: false, bestseller: false, desc: "Traditional rustic country chicken curry simmered to perfection.", img: "https://images.unsplash.com/photo-1545247181-516773cae754?auto=format&fit=crop&w=600&q=80" },
+  { id: "8", name: "Butter Chicken Masala", category: "Royal Curries", price: 275, veg: false, bestseller: true, desc: "Tandoori chicken tikka simmered in rich velvety tomato-butter gravy.", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80" },
+  { id: "9", name: "Paneer Butter Masala", category: "Royal Curries", price: 240, veg: true, bestseller: true, desc: "Soft paneer cubes in a rich, creamy cashew and tomato gravy.", img: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80" },
+  { id: "10", name: "Chicken 65 (Royal Style)", category: "Starters & Appetizers", price: 240, veg: false, bestseller: true, desc: "Crispy spicy chicken bites tossed with curry leaves and green chillies.", img: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80" },
+  { id: "11", name: "Crispy Chilli Baby Corn", category: "Starters & Appetizers", price: 195, veg: true, bestseller: false, desc: "Golden fried baby corn tossed in tangy Indo-Chinese garlic sauce.", img: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=600&q=80" },
+  { id: "12", name: "Butter Garlic Naan", category: "Indian Breads", price: 65, veg: true, bestseller: true, desc: "Soft leavened flatbread topped with roasted garlic and melted butter.", img: "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=600&q=80" },
+  { id: "13", name: "Tandoori Roti", category: "Indian Breads", price: 35, veg: true, bestseller: false, desc: "Whole wheat bread baked crisp in a traditional clay tandoor.", img: "https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=600&q=80" },
+  { id: "14", name: "Schezwan Chicken Fried Rice", category: "Chinese & Fried Rice", price: 210, veg: false, bestseller: false, desc: "Wok-tossed basmati rice with diced chicken, veggies & fiery Schezwan sauce.", img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80" },
+  { id: "15", name: "Royal Family Biryani Pack (Serves 4)", category: "Family Combos", price: 899, veg: false, bestseller: true, desc: "Jumbo Chicken Dum Biryani + Chicken 65 + 4 Drinks + Double Ka Meetha.", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80" },
+  { id: "16", name: "Shahi Double Ka Meetha", category: "Royal Desserts", price: 110, veg: true, bestseller: true, desc: "Hyderabadi royal bread pudding soaked in saffron milk, ghee & dry fruits.", img: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80" },
+  { id: "17", name: "Royal Mango Lassi", category: "Beverages & Mocktails", price: 95, veg: true, bestseller: true, desc: "Thick, creamy churned yogurt blended with Alphonso mango pulp & pistachios.", img: "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80" }
 ];
 
 const CATEGORIES = [
-  "All",
-  "Royal Biryanis",
-  "Tandoori & Kebabs",
-  "Telangana Specials",
-  "Royal Curries",
-  "Starters & Appetizers",
-  "Indian Breads",
-  "Chinese & Fried Rice",
-  "Family Combos",
-  "Royal Desserts",
-  "Beverages & Mocktails"
+  "All", "Royal Biryanis", "Tandoori & Kebabs", "Telangana Specials",
+  "Royal Curries", "Starters & Appetizers", "Indian Breads",
+  "Chinese & Fried Rice", "Family Combos", "Royal Desserts", "Beverages & Mocktails"
 ];
 
 function App() {
-  const [menu, setMenu] = useState(() => {
-    const saved = localStorage.getItem('rrr_menu');
-    return saved ? JSON.parse(saved) : INITIAL_MENU;
-  });
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('rrr_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [menu, setMenu] = useState(INITIAL_MENU);
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [dbSynced, setDbSynced] = useState(false);
 
-  // Checkout state
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [orderType, setOrderType] = useState("Delivery");
   const [paymentMethod, setPaymentMethod] = useState("UPI / GPay / PhonePe");
 
-  // Admin state
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPin, setAdminPin] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [newDish, setNewDish] = useState({ name: "", category: "Royal Biryanis", price: "", veg: false, desc: "" });
 
+  // Real-time Firebase Firestore Sync
   useEffect(() => {
-    localStorage.setItem('rrr_menu', JSON.stringify(menu));
-  }, [menu]);
-
-  useEffect(() => {
-    localStorage.setItem('rrr_orders', JSON.stringify(orders));
-  }, [orders]);
+    const menuRef = collection(db, "menu");
+    const unsubscribe = onSnapshot(menuRef, async (snapshot) => {
+      if (snapshot.empty) {
+        const batch = writeBatch(db);
+        INITIAL_MENU.forEach((item) => {
+          batch.set(doc(db, "menu", item.id), item);
+        });
+        await batch.commit();
+      } else {
+        const liveItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setMenu(liveItems);
+        setDbSynced(true);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const addToCart = (item) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
-      }
+      if (existing) return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
       return [...prev, { ...item, qty: 1 }];
     });
   };
@@ -106,29 +106,30 @@ function App() {
 
   const filteredMenu = menu.filter(item => {
     const matchesCat = selectedCategory === "All" || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.desc.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.desc || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesVeg = !vegOnly || item.veg;
     return matchesCat && matchesSearch && matchesVeg;
   });
 
-  const handleWhatsAppOrder = (e) => {
+  const handleWhatsAppOrder = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
     const orderId = `RRR-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newOrder = {
-      id: orderId,
-      customer: customerName,
-      phone: customerPhone,
-      address: orderType === "Delivery" ? customerAddress : "Takeaway / Dine-in",
-      items: cart,
-      total: grandTotal,
-      payment: paymentMethod,
-      status: "Confirmed",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setOrders([newOrder, ...orders]);
+    try {
+      await setDoc(doc(db, "orders", orderId), {
+        id: orderId,
+        customer: customerName,
+        phone: customerPhone,
+        address: orderType === "Delivery" ? customerAddress : "Takeaway",
+        items: cart,
+        total: grandTotal,
+        payment: paymentMethod,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("Order log skipped:", err);
+    }
 
     const itemsText = cart.map(i => `• ${i.name} x${i.qty} = ₹${i.price * i.qty}`).join('%0A');
     const msg = `*👑 ROYAL RUCHI RESTAURANT (RRR)*%0A` +
@@ -157,11 +158,12 @@ function App() {
     }
   };
 
-  const handleAddDish = (e) => {
+  const handleAddDish = async (e) => {
     e.preventDefault();
     if (!newDish.name || !newDish.price) return;
-    const item = {
-      id: Date.now(),
+    const id = Date.now().toString();
+    await setDoc(doc(db, "menu", id), {
+      id,
       name: newDish.name,
       category: newDish.category,
       price: Number(newDish.price),
@@ -169,15 +171,26 @@ function App() {
       bestseller: true,
       desc: newDish.desc || "Chef's special royal preparation.",
       img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80"
-    };
-    setMenu([item, ...menu]);
+    });
     setNewDish({ name: "", category: "Royal Biryanis", price: "", veg: false, desc: "" });
+  };
+
+  const handlePriceUpdate = async (id, currentPrice) => {
+    const updated = prompt("Enter new price (₹):", currentPrice);
+    if (updated && !isNaN(updated)) {
+      await updateDoc(doc(db, "menu", id), { price: Number(updated) });
+    }
+  };
+
+  const handleDeleteDish = async (id) => {
+    if (window.confirm("Remove this dish from live menu?")) {
+      await deleteDoc(doc(db, "menu", id));
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#0B0908] text-stone-100 font-sans">
       {/* Top Bar */}
-           {/* Top Bar */}
       <div className="bg-gradient-to-r from-[#5C0A0A] via-[#8B1111] to-[#5C0A0A] text-amber-200 text-xs py-2 px-4 text-center border-b border-amber-500/20">
         ✨ Free Delivery on Orders Above ₹499 across Telangana | Direct WhatsApp Ordering: +91 96400 32003 ✨
       </div>
@@ -225,13 +238,13 @@ function App() {
       {isAdmin ? (
         <section className="max-w-6xl mx-auto px-4 py-10">
           <div className="bg-[#15110F] border border-amber-500/30 rounded-2xl p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-amber-400">👑 RRR Owner Admin Dashboard</h2>
-                <p className="text-sm text-stone-400">Manage live menu items, prices, and customer WhatsApp orders</p>
+                <h2 className="text-2xl font-bold text-amber-400">👑 RRR Live Cloud Admin Dashboard</h2>
+                <p className="text-sm text-stone-400">Changes here update instantaneously for all customers across Telangana</p>
               </div>
-              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold">
-                Live Store Active
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${dbSynced ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                {dbSynced ? '● Cloud Synced Live' : 'Connecting Cloud...'}
               </span>
             </div>
 
@@ -271,24 +284,32 @@ function App() {
                 Pure Veg Dish
               </label>
               <button type="submit" className="bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg px-4 py-2 text-sm">
-                + Add to Menu
+                + Add to Live Menu
               </button>
             </form>
 
-            <h3 className="text-lg font-bold text-amber-300 mb-3">Menu Items ({menu.length})</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
+            <h3 className="text-lg font-bold text-amber-300 mb-3">Live Menu Items ({menu.length})</h3>
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
               {menu.map(item => (
                 <div key={item.id} className="flex items-center justify-between bg-stone-900/80 p-3 rounded-xl border border-stone-800">
                   <div>
                     <p className="font-semibold text-white">{item.name} <span className="text-xs text-amber-400 ml-2">({item.category})</span></p>
                     <p className="text-xs text-stone-400">₹{item.price} • {item.veg ? "Veg" : "Non-Veg"}</p>
                   </div>
-                  <button
-                    onClick={() => setMenu(menu.filter(m => m.id !== item.id))}
-                    className="text-red-400 hover:text-red-300 p-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handlePriceUpdate(item.id, item.price)}
+                      className="px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded-lg text-xs font-semibold hover:bg-amber-500/30"
+                    >
+                      Edit Price
+                    </button>
+                    <button
+                      onClick={() => handleDeleteDish(item.id)}
+                      className="text-red-400 hover:text-red-300 p-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -524,61 +545,3 @@ function App() {
                         value={customerAddress}
                         onChange={e => setCustomerAddress(e.target.value)}
                         rows="2"
-                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
-                        required
-                      />
-                    )}
-                    <select
-                      value={paymentMethod}
-                      onChange={e => setPaymentMethod(e.target.value)}
-                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
-                    >
-                      <option>UPI / GPay / PhonePe</option>
-                      <option>Cash on Delivery (COD)</option>
-                    </select>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <CheckCircle2 className="w-5 h-5" /> Place Order via WhatsApp
-                    </button>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Admin Login Modal */}
-      {showAdminLogin && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#15110F] border border-amber-500/40 rounded-2xl p-6 max-w-sm w-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-amber-400">Owner Admin Access</h3>
-              <button onClick={() => setShowAdminLogin(false)}><X className="w-5 h-5 text-stone-400" /></button>
-            </div>
-            <form onSubmit={handleAdminAuth} className="space-y-4">
-              <input
-                type="password"
-                placeholder="Enter Admin PIN (Default: RRR2026)"
-                value={adminPin}
-                onChange={e => setAdminPin(e.target.value)}
-                className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-sm text-white"
-                required
-              />
-              <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl">
-                Unlock Dashboard
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default App;
- 
-      
