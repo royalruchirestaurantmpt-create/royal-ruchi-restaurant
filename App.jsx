@@ -539,9 +539,65 @@ function App() {
                       className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
                       required
                     />
-                    {orderType === "Delivery" && (
+                    {orderType === "Delivery" && (                    {orderType === "Delivery" && (
                       <textarea
                         placeholder="Complete Delivery Address *"
                         value={customerAddress}
                         onChange={e => setCustomerAddress(e.target.value)}
                         rows="2"
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                        required
+                      />
+                    )}
+                    <select
+                      value={paymentMethod}
+                      onChange={e => setPaymentMethod(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                    >
+                      <option>UPI / GPay / PhonePe</option>
+                      <option>Cash on Delivery (COD)</option>
+                    </select>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <CheckCircle2 className="w-5 h-5" /> Place Order via WhatsApp
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Login Modal */}
+      {showAdminLogin && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#15110F] border border-amber-500/40 rounded-2xl p-6 max-w-sm w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-amber-400">Owner Admin Access</h3>
+              <button onClick={() => setShowAdminLogin(false)}><X className="w-5 h-5 text-stone-400" /></button>
+            </div>
+            <form onSubmit={handleAdminAuth} className="space-y-4">
+              <input
+                type="password"
+                placeholder="Enter Admin PIN (Default: RRR2026)"
+                value={adminPin}
+                onChange={e => setAdminPin(e.target.value)}
+                className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-sm text-white"
+                required
+              />
+              <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl">
+                Unlock Dashboard
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
