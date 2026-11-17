@@ -177,4 +177,408 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0B0908] text-stone-100 font-sans">
       {/* Top Bar */}
-      <div className="bg-gradient-to
+           {/* Top Bar */}
+      <div className="bg-gradient-to-r from-[#5C0A0A] via-[#8B1111] to-[#5C0A0A] text-amber-200 text-xs py-2 px-4 text-center border-b border-amber-500/20">
+        ✨ Free Delivery on Orders Above ₹499 across Telangana | Direct WhatsApp Ordering: +91 96400 32003 ✨
+      </div>
+
+      {/* Navbar */}
+      <header className="sticky top-0 z-40 bg-[#0B0908]/95 backdrop-blur-md border-b border-amber-500/20">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-red-700 flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-amber-500/20">
+              RRR
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold tracking-wider text-amber-400" style={{ fontFamily: 'Cinzel, serif' }}>
+                ROYAL RUCHI
+              </h1>
+              <p className="text-[11px] text-stone-400 tracking-widest uppercase">Restaurant • Telangana</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => isAdmin ? setIsAdmin(false) : setShowAdminLogin(true)}
+              className="px-3 py-2 rounded-lg border border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs flex items-center gap-1.5 transition"
+            >
+              {isAdmin ? <><LogOut className="w-3.5 h-3.5" /> Exit Admin</> : <><Lock className="w-3.5 h-3.5" /> Admin</>}
+            </button>
+
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-500/20 transition"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span className="text-sm">Cart</span>
+              {totalItems > 0 && (
+                <span className="bg-red-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Admin Dashboard */}
+      {isAdmin ? (
+        <section className="max-w-6xl mx-auto px-4 py-10">
+          <div className="bg-[#15110F] border border-amber-500/30 rounded-2xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-amber-400">👑 RRR Owner Admin Dashboard</h2>
+                <p className="text-sm text-stone-400">Manage live menu items, prices, and customer WhatsApp orders</p>
+              </div>
+              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold">
+                Live Store Active
+              </span>
+            </div>
+
+            <form onSubmit={handleAddDish} className="grid grid-cols-1 md:grid-cols-5 gap-3 bg-black/40 p-4 rounded-xl border border-stone-800 mb-8">
+              <input
+                type="text"
+                placeholder="Dish Name"
+                value={newDish.name}
+                onChange={e => setNewDish({ ...newDish, name: e.target.value })}
+                className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-sm text-white"
+                required
+              />
+              <select
+                value={newDish.category}
+                onChange={e => setNewDish({ ...newDish, category: e.target.value })}
+                className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-sm text-white"
+              >
+                {CATEGORIES.filter(c => c !== "All").map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <input
+                type="number"
+                placeholder="Price (₹)"
+                value={newDish.price}
+                onChange={e => setNewDish({ ...newDish, price: e.target.value })}
+                className="bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-sm text-white"
+                required
+              />
+              <label className="flex items-center gap-2 text-sm text-stone-300 px-2">
+                <input
+                  type="checkbox"
+                  checked={newDish.veg}
+                  onChange={e => setNewDish({ ...newDish, veg: e.target.checked })}
+                  className="accent-emerald-500"
+                />
+                Pure Veg Dish
+              </label>
+              <button type="submit" className="bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg px-4 py-2 text-sm">
+                + Add to Menu
+              </button>
+            </form>
+
+            <h3 className="text-lg font-bold text-amber-300 mb-3">Menu Items ({menu.length})</h3>
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
+              {menu.map(item => (
+                <div key={item.id} className="flex items-center justify-between bg-stone-900/80 p-3 rounded-xl border border-stone-800">
+                  <div>
+                    <p className="font-semibold text-white">{item.name} <span className="text-xs text-amber-400 ml-2">({item.category})</span></p>
+                    <p className="text-xs text-stone-400">₹{item.price} • {item.veg ? "Veg" : "Non-Veg"}</p>
+                  </div>
+                  <button
+                    onClick={() => setMenu(menu.filter(m => m.id !== item.id))}
+                    className="text-red-400 hover:text-red-300 p-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <>
+          {/* Hero Section */}
+          <section className="relative overflow-hidden py-16 sm:py-24 px-4 border-b border-amber-500/15">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(180,20,20,0.28),_transparent_55%)]" />
+            <div className="max-w-7xl mx-auto relative z-10 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium mb-6">
+                <Sparkles className="w-3.5 h-3.5" /> Authentic Nizami & Telangana Cuisine
+              </div>
+              <h2 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight mb-4" style={{ fontFamily: 'Cinzel, serif' }}>
+                TASTE THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-red-500">ROYAL LEGACY</span>
+              </h2>
+              <p className="max-w-2xl mx-auto text-stone-300 text-base sm:text-lg mb-8">
+                Slow-cooked Dum Biryanis, fiery Telangana delicacies, and royal kebabs crafted with hand-ground spices and served piping hot.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <a href="#menu" className="bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold px-7 py-3.5 rounded-xl flex items-center gap-2 shadow-lg shadow-red-900/40 transition">
+                  Explore Royal Menu <ArrowRight className="w-4 h-4" />
+                </a>
+                <a href="https://wa.me/919640032003" target="_blank" rel="noreferrer" className="bg-stone-900 hover:bg-stone-800 border border-amber-500/30 text-amber-300 font-semibold px-7 py-3.5 rounded-xl flex items-center gap-2 transition">
+                  <Phone className="w-4 h-4" /> Order on WhatsApp
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* Menu Section */}
+          <section id="menu" className="max-w-7xl mx-auto px-4 py-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-amber-400" style={{ fontFamily: 'Cinzel, serif' }}>
+                  OUR ROYAL MENU
+                </h3>
+                <p className="text-sm text-stone-400">Select dishes and send your order directly to our kitchen on WhatsApp</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Search biryani, kebab..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="bg-[#15110F] border border-stone-800 focus:border-amber-500/50 rounded-xl pl-9 pr-4 py-2 text-sm text-white outline-none"
+                  />
+                </div>
+                <button
+                  onClick={() => setVegOnly(!vegOnly)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${vegOnly ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300' : 'bg-[#15110F] border-stone-800 text-stone-400'}`}
+                >
+                  🟢 Veg Only
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto pb-4 mb-8">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold transition ${
+                    selectedCategory === cat
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold shadow-md'
+                      : 'bg-[#15110F] text-stone-300 border border-stone-800 hover:border-amber-500/40'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMenu.map(item => {
+                const inCart = cart.find(c => c.id === item.id);
+                return (
+                  <div key={item.id} className="bg-[#15110F] border border-stone-800/90 hover:border-amber-500/40 rounded-2xl overflow-hidden flex flex-col justify-between transition group">
+                    <div>
+                      <div className="relative h-48 overflow-hidden">
+                        <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase ${item.veg ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/40' : 'bg-red-950/90 text-red-300 border border-red-500/40'}`}>
+                            {item.veg ? '● Pure Veg' : '▲ Non-Veg'}
+                          </span>
+                          {item.bestseller && (
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500 text-black flex items-center gap-1">
+                              <Flame className="w-3 h-3" /> Bestseller
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <p className="text-[11px] text-amber-400/80 font-medium mb-1">{item.category}</p>
+                        <h4 className="text-lg font-bold text-white mb-1.5">{item.name}</h4>
+                        <p className="text-xs text-stone-400">{item.desc}</p>
+                      </div>
+                    </div>
+
+                    <div className="px-5 pb-5 pt-2 flex items-center justify-between border-t border-stone-800/60">
+                      <span className="text-xl font-extrabold text-amber-400">₹{item.price}</span>
+                      {inCart ? (
+                        <div className="flex items-center gap-3 bg-amber-500 text-black font-bold rounded-xl px-3 py-1.5">
+                          <button onClick={() => updateQty(item.id, -1)}><Minus className="w-4 h-4" /></button>
+                          <span>{inCart.qty}</span>
+                          <button onClick={() => updateQty(item.id, 1)}><Plus className="w-4 h-4" /></button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(item)}
+                          className="bg-red-700 hover:bg-red-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition"
+                        >
+                          <Plus className="w-4 h-4" /> Add
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* Footer */}
+      <footer className="bg-[#070605] border-t border-amber-500/20 py-10 px-4 mt-12">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div>
+            <h4 className="text-lg font-bold text-amber-400" style={{ fontFamily: 'Cinzel, serif' }}>ROYAL RUCHI RESTAURANT (RRR)</h4>
+            <p className="text-xs text-stone-400 mt-1 flex items-center justify-center sm:justify-start gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-amber-500" /> Telangana, India • Open Daily: 11:30 AM – 11:30 PM
+            </p>
+          </div>
+          <div className="text-xs text-stone-400">
+            <p>Direct WhatsApp & Call Orders: <span className="text-amber-400 font-bold">+91 96400 32003</span></p>
+            <p className="mt-1">© 2026 Royal Ruchi Restaurant. All Rights Reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Floating Cart Button */}
+      {totalItems > 0 && !isCartOpen && (
+        <div className="fixed bottom-5 left-4 right-4 z-40 max-w-md mx-auto">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold py-3.5 px-5 rounded-2xl shadow-2xl flex items-center justify-between"
+          >
+            <span>{totalItems} Item(s) • ₹{grandTotal}</span>
+            <span className="flex items-center gap-1">View Cart & Order <ArrowRight className="w-4 h-4" /></span>
+          </button>
+        </div>
+      )}
+
+      {/* Cart Drawer */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-end">
+          <div className="w-full max-w-md bg-[#120E0C] h-full border-l border-amber-500/30 flex flex-col justify-between p-5 overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+                <h3 className="text-lg font-bold text-amber-400 flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5" /> Your Royal Cart
+                </h3>
+                <button onClick={() => setIsCartOpen(false)} className="p-1.5 bg-stone-900 rounded-lg text-stone-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {cart.length === 0 ? (
+                <div className="text-center py-16 text-stone-400">
+                  <p className="text-base mb-2">Your royal platter is empty!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3 my-4">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex items-center justify-between bg-stone-900/90 p-3 rounded-xl border border-stone-800">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{item.name}</p>
+                          <p className="text-xs text-amber-400">₹{item.price} x {item.qty} = ₹{item.price * item.qty}</p>
+                        </div>
+                        <div className="flex items-center gap-2 bg-stone-800 rounded-lg px-2 py-1">
+                          <button onClick={() => updateQty(item.id, -1)} className="text-amber-400"><Minus className="w-3.5 h-3.5" /></button>
+                          <span className="text-xs font-bold">{item.qty}</span>
+                          <button onClick={() => updateQty(item.id, 1)} className="text-amber-400"><Plus className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-stone-900/60 p-4 rounded-xl border border-stone-800 text-xs space-y-1.5 mb-5">
+                    <div className="flex justify-between text-stone-400"><span>Item Total</span><span>₹{subtotal}</span></div>
+                    <div className="flex justify-between text-stone-400"><span>Delivery Charge</span><span>{deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}</span></div>
+                    <div className="flex justify-between text-base font-bold text-amber-400 pt-2 border-t border-stone-800">
+                      <span>Grand Total</span><span>₹{grandTotal}</span>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleWhatsAppOrder} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      {["Delivery", "Takeaway"].map(type => (
+                        <button
+                          type="button"
+                          key={type}
+                          onClick={() => setOrderType(type)}
+                          className={`py-2 rounded-lg text-xs font-bold border ${orderType === type ? 'bg-amber-500 text-black border-amber-500' : 'bg-stone-900 text-stone-400 border-stone-800'}`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Your Full Name *"
+                      value={customerName}
+                      onChange={e => setCustomerName(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                      required
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Mobile Number *"
+                      value={customerPhone}
+                      onChange={e => setCustomerPhone(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                      required
+                    />
+                    {orderType === "Delivery" && (
+                      <textarea
+                        placeholder="Complete Delivery Address *"
+                        value={customerAddress}
+                        onChange={e => setCustomerAddress(e.target.value)}
+                        rows="2"
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                        required
+                      />
+                    )}
+                    <select
+                      value={paymentMethod}
+                      onChange={e => setPaymentMethod(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
+                    >
+                      <option>UPI / GPay / PhonePe</option>
+                      <option>Cash on Delivery (COD)</option>
+                    </select>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <CheckCircle2 className="w-5 h-5" /> Place Order via WhatsApp
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Login Modal */}
+      {showAdminLogin && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#15110F] border border-amber-500/40 rounded-2xl p-6 max-w-sm w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-amber-400">Owner Admin Access</h3>
+              <button onClick={() => setShowAdminLogin(false)}><X className="w-5 h-5 text-stone-400" /></button>
+            </div>
+            <form onSubmit={handleAdminAuth} className="space-y-4">
+              <input
+                type="password"
+                placeholder="Enter Admin PIN (Default: RRR2026)"
+                value={adminPin}
+                onChange={e => setAdminPin(e.target.value)}
+                className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-sm text-white"
+                required
+              />
+              <button type="submit" className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl">
+                Unlock Dashboard
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+ 
+      
