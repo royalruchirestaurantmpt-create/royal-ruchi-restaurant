@@ -539,7 +539,7 @@ function App() {
                       className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-white"
                       required
                     />
-                    {orderType === "Delivery" && (                    {orderType === "Delivery" && (
+                    {orderType === "Delivery" && (                    
                       <textarea
                         placeholder="Complete Delivery Address *"
                         value={customerAddress}
