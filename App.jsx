@@ -6,3 +6,4 @@ const firebaseConfig = {
   messagingSenderId: "உங்கள்_SENDER_ID",
   appId: "உங்கள்_APP_ID"
 };
+export default App;
